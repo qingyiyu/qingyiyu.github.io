@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
   
-  <title itemprop="name">Markdown教程 | 青衣鱼的小窝</title>
+  <title itemprop="name">基于VC++的中国象棋网上对弈系统（1） | 青衣鱼的小窝</title>
   
     <link rel="shortcut icon" href="/images/favicon.ico">
   
@@ -311,7 +311,7 @@
     </div>
     <header class="pattern-header single-header">
       <h1 class="entry-title">
-      Markdown教程</h1>
+      基于VC++的中国象棋网上对弈系统（1）</h1>
       <p class="entry-census">
         <span>
           <a href="">
@@ -323,7 +323,7 @@
         </span>
         <span class="bull">
         ·</span>
-        2022-4-12<span class="bull">
+        2022-4-14<span class="bull">
         ·</span>
       <span id="busuanzi_value_page_pv"></span>次阅读</p>
     </header>
@@ -337,227 +337,802 @@
         <!--<div class="toc-entry-content"><!-- 套嵌目录使用（主要为了支援评论）-->
         
         <div class="entry-content">
-          <p>Markdown是一种轻量级的「标记语言」。</p>
-<h2 id="1-Markdown-com-cn-简介"><a href="#1-Markdown-com-cn-简介" class="headerlink" title="1.Markdown.com.cn 简介"></a>1.Markdown.com.cn 简介</h2><ul>
-<li>支持自定义样式的 Markdown 编辑器</li>
-<li>支持微信公众号、知乎和稀土掘金</li>
-</ul>
-<h2 id="2-Markdown语法教程"><a href="#2-Markdown语法教程" class="headerlink" title="2.Markdown语法教程"></a>2.Markdown语法教程</h2><h3 id="2-1-标题"><a href="#2-1-标题" class="headerlink" title="2.1 标题"></a>2.1 标题</h3><p>不同数量的<code>#</code>可以完成不同的标题。</p>
-<pre><code># 一级标题
-## 二级标题
-### 三级标题
+          <h2 id="1、网络通信"><a href="#1、网络通信" class="headerlink" title="1、网络通信"></a>1、网络通信</h2><h3 id="1-1-CCOM类"><a href="#1-1-CCOM类" class="headerlink" title="1.1 CCOM类"></a>1.1 CCOM类</h3><p>本程序通过类CCom来实现通信功能：  </p>
+<pre><code>class CComm
+&#123;
+    private:
+     static void *ListenThread(void *data);
+     SOCKET ListenSocket;
+     sockaddr_in srv;
+     sockaddr_in client;
+    public:
+     bool NewMsg;
+    CComm();
+    ~CComm();
+    bool SendMsg(char *Msg,int len,char *host,short port);
+    bool Listen(int PortNum);
+&#125;
 </code></pre>
-<h1 id="一级标题"><a href="#一级标题" class="headerlink" title="一级标题"></a>一级标题</h1><h2 id="二级标题"><a href="#二级标题" class="headerlink" title="二级标题"></a>二级标题</h2><h3 id="三级标题"><a href="#三级标题" class="headerlink" title="三级标题"></a>三级标题</h3><h3 id="2-2-字体"><a href="#2-2-字体" class="headerlink" title="2.2 字体"></a>2.2 字体</h3><p>粗体、斜体、粗体和斜体，删除线，需要在文字前后加不同的标记符号。</p>
-<pre><code>**这个是粗体**
-*这个是斜体*
-***这个是粗体加斜体***
-~~这里想用删除线~~
+<h2 id="2、主框架重要函数"><a href="#2、主框架重要函数" class="headerlink" title="2、主框架重要函数"></a>2、主框架重要函数</h2><h3 id="2-1-WinMain函数"><a href="#2-1-WinMain函数" class="headerlink" title="2.1 WinMain函数"></a>2.1 WinMain函数</h3><p>本程序是一个Win32程序，也就是没有用到MFC，直接在 Win32 API函数基础上开发的。函数的入口是WinMain。该函数首先根据机器分辨率调整窗口位置，然后加载字符串、注册应用程序、创建并显示窗口，最后启动消息循环。代码如下:</p>
+<pre><code>int APIENTRY WinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPSTR lpCnmLine,
+                     int nCmdShow)
+&#123;
+    //根据机器分辨率调整窗口位置
+    DEVMODE m_DisplayMode;
+    EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&amp;m_DisplayMode); 
+        wcX=m_DisplayMode.dmPelsWidth/2-650/2;
+    wcY=m_DisplayMode.dmPelsHeight/2-550/2;
+    if(m_DisplayMode, dmPelsWidth&lt;=680)
+    &#123;
+        wcX=5;
+    &#125;
+    if(m_Di sp1a yMode.dmPelsHeight&lt;=600)
+        wcY=5;
+    MSG msg;
+    HACCEL hAccelTable;
+    //加载全局字符串资源
+    Loadstring(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    Loadstring(hInstance, IDC_CHESS, szWindowClass, MAX_LOADSTRING);
+    MyRegisterClass (hInstance) ; //注册应用程序
+    // Perform application initialization:
+    if (! InitInstance (hInstance, nCmdShow) ) // 创建并显示窗口
+    &#123;
+        return FALSE;
+    &#125;
+    hAccelTable = LoadAccelerators (hInstance, (LPCTSTR) IDC_CHESS) ;//加载快捷键
+    while (GetMessage (&amp;msg, NULL, 0, 0)) //启动主窗口的消息循环
+    &#123;
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &amp;msg))
+        &#123;
+            TranslateMessage(&amp;msg);
+            DispatchMessage(&amp;msg);
+        &#125;
+    &#125;
+    return msg.wParam;
+&#125;
 </code></pre>
-<p><strong>这个是粗体</strong></p>
-<p><em>这个是斜体</em></p>
-<p><em><strong>这个是粗体加斜体</strong></em></p>
-<p><del>这里想用删除线</del></p>
-<p>注：如果想给字体换颜色、字体或者居中显示，需要使用内嵌HTML来实现。</p>
-<h3 id="2-3-无序列表"><a href="#2-3-无序列表" class="headerlink" title="2.3 无序列表"></a>2.3 无序列表</h3><p>无序列表的使用，在符号<code>-</code>后加空格使用。</p>
-<pre><code>- 无序列表 1
-- 无序列表 2
-- 无序列表 3
+<h3 id="2-2-InitInstance函数"><a href="#2-2-InitInstance函数" class="headerlink" title="2.2 InitInstance函数"></a>2.2 InitInstance函数</h3><p>该程序创建并显示窗口，代码如下：</p>
+<pre><code>BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+&#123;
+// HWND hWnd;
+hInst = hInstance; // Store instance handle in our global variable
+hWnd = CreateWindow (szWindowClass, szTitle, WS_POPUPWINDOW,//创建主窗口 
+    wcX, wcY, 650, 550, NULL, NULL, hInstance, NULL);
+if (!hWnd) 
+    return FALSE;
+ShowWindow (hWnd, nCmdShow) ; //显示窗口 
+UpdateWindow (hWnd) ;//刷新窗口
+return TRUE;
+&#125;
 </code></pre>
-<ul>
-<li>无序列表 1</li>
-<li>无序列表 2</li>
-<li>无序列表 3</li>
-</ul>
-<p>如果要控制列表的层级，则需要在符号<code>-</code>前使用空格。</p>
-<pre><code>- 无序列表 1
-- 无序列表 2
-  - 无序列表 2.1
-  - 无序列表 2.2
+<h2 id="3、通信函数"><a href="#3、通信函数" class="headerlink" title="3、通信函数"></a>3、通信函数</h2><h3 id="3-1-Listen函数"><a href="#3-1-Listen函数" class="headerlink" title="3.1 Listen函数"></a>3.1 Listen函数</h3><p>该函数创建套接字，创建线程接受对方数据。</p>
+<pre><code>bool CComm::Listen(int PortNum)
+&#123;
+    //创建 SOCKET
+    ListenSocket = socket(PF_INETr,SOCK_DGRAM,0);
+    if( ListenSocket == INVALID_SOCKET )
+    &#123;
+        MessageBox (hWnd,&quot;Error: socket 创建失败&quot;,&quot;waring&quot;, 0); 
+        return false;
+    &#125;
+    //设定地址
+    srv.sin_family = PF_INET;
+    srv. sin_addr.s_addr = htonl ( INADDR_ANY );//任何地址
+    //确定绑定端口
+    srv.sin_port = htons(PortNum);
+    if (bind(ListenSocket,(struct sockaddr *)&amp;srv,sizeof(srv)) != 0)
+    &#123;
+        MessageBox (hWnd, &quot;Error:绑定失败&quot;,&quot;warning&quot;, 0);
+        closesocket(ListenSocket);
+        return false;
+    &#125;
+    int ThreadID;    //线程 ID
+    DWORD thread;
+    //调用createthread创建线程
+    ThreadID=(int)CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)(CComm::ListenThread),(void *)this,0,&amp;thread);
+    ThreadID = ThreadID ? 0 : 1; //如果成功，返回 0
+    if(ThreadID)
+    &#123;
+        MessageBox (hWnd, &quot;线程创建失败&quot;,&quot;warning&quot;, 0);
+        return false;
+    &#125;
+    else
+        return true;
+&#125;
 </code></pre>
-<ul>
-<li>无序列表 1</li>
-<li>无序列表 2<ul>
-<li>无序列表 2.1</li>
-<li>无序列表 2.2</li>
-</ul>
-</li>
-</ul>
-<h3 id="2-4-有序列表"><a href="#2-4-有序列表" class="headerlink" title="2.4 有序列表"></a>2.4 有序列表</h3><p>有序列表的使用，在数字及符号<code>.</code>后加空格后输入内容。</p>
-<pre><code>1. 有序列表 1
-2. 有序列表 2
-3. 有序列表 3
+<h3 id="3-2-ListenThread函数"><a href="#3-2-ListenThread函数" class="headerlink" title="3.2 ListenThread函数"></a>3.2 ListenThread函数</h3><p>该函数是一个线程函数，数据的接收是通过线程来实现的。代码如下：</p>
+<pre><code>void *CComm::ListenThread(void *data)
+&#123;
+    char buf[4096];
+    CComm *Comm = (CComm *) data;
+    //获得地址长度
+    int len = sizeof(Comm-&gt;client);
+    //获得数据
+    while (1) //一直循环
+    &#123;
+        //接收数据
+        int result = recvfrom( Comm-&gt;ListenSocket,buf,sizeof(buf)-1,0, (sockaddr*)&amp;Comm-&gt;client, (soc klen_t *)&amp;len);
+        //如果获得数据
+        if(result&gt;0)
+        &#123;
+            buf[result]=0;
+            int ibuf;
+            ibuf=atoi(buf);
+            //当发送的是字符串时，atoi (buf)的值是0
+            if(ibuf==0)
+            &#123;
+                int MsgLen;
+                char temp[256];
+                MsgLen=GetWindowTextLength(hEditMsg2)+1;
+                GetWindowText(hEditMsg2,temp,MsgLen);
+                SetWindowText(hEditMsg1,temp);
+                SetWindowText(hEditMsg2,buf);
+                // MessageBox(hWndzbuf,nwaitHr 0);
+            &#125;
+            if(ibuf==10000)
+            &#123;
+                if (IDYES==MessageBox (hWnd,&quot;网内有人邀请您联机，接受吗?&quot;,&quot;是否接受&quot;,MB—YESNO))
+                &#123;
+                    Accept=true;
+                    NetExit-true;
+                    ClientAddr=inet ntoa(Comm-&gt;client.sin addr);
+                    ClientPort=ntohs(Comm-&gt;client.sin_port);
+                    MessageBox (hWnd,&quot;您是黑色方，请等待对方走棋&quot;, &quot;wait&quot;, 0);
+                    mytrun=0;
+                &#125;
+            &#125;
+            if(ibuf==10001)
+            &#123;
+                MessageBox (hWnd,&quot;对方已经接受邀请&quot;,&quot;接受&quot;,0);
+                Accept2=true;
+                NetExit=true;
+                ClientAddr=inet__ntoa (Comm-&gt;client. sin_addr);
+                ClientPort=ntohs(Comm-&gt;client.sin_port);
+                mytrun=l;
+                // MessageBox(hWnd,Client,&quot;ok&quot;,0);
+            &#125;
+            //强行退出时会发消息反馈通知另一方
+            if(ibuf==10002)
+            &#123;
+                MessageBox (hWnd,&quot;对方已经逃跑！&quot;,&quot;^_^&quot;, 0);
+                EnableWindow(GetDlgItem(hWnd,IDB_SEND),true);
+                mytrun=0;
+            &#125;
+            if(ibuf&gt;1000000)
+            &#123;
+                mytrun=l;
+                // i, j , Prei, Prej , ijvalue 具体定义参见 WM_LBUTTONDOWN 消息响应
+                int i,j,Prei,Prej,ijvalue;
+                //取出对应数的值
+                i=(ibuf/100000)%(ibuf/1000000*10);
+                j=(ibuf/10000)%(ibuf/100000*10);
+                ijvalue=(ibuf/100)%(ibuf/10000*10);
+                Prei-(ibuf/10)%(ibuf/100*10);
+                Prej=ibuf%(ibuf/10*10);
+                //备份坐标回看之用
+                ReplayXl=Prei,ReplayYl=Prej, ReplayX2=i,ReplayY2=j;
+                if(InfoArray[i][j]==5)
+                &#123;
+                    MessageBox (hWnd,&quot;黑方胜利,您输了&quot;,&quot;winner&quot;,0);
+                    win=true;
+                    NetExit=false;
+                &#125;
+                if(InfoArray[i][j]==15)
+                &#123;
+                    MessageBox (hVInd,&quot;红方胜利，您输了&quot;,&quot;winner&quot;,0);
+                    win=true;
+                    NetExit=false;
+                &#125;
+                InfoArray[Prei][Prej]=0;
+                if(ijvalue&gt;8)
+                &#123;
+                    RedOrBlack=0;
+                &#125;
+                else
+                &#123;
+                    RedOrBlack=l;
+                &#125;
+                InfoArray[i][j]=ijvalue;
+                InvalidateRect(hWnd,NULL,1);
+            &#125;
+        &#125;
+    &#125;
 </code></pre>
-<ol>
-<li>有序列表 1</li>
-<li>有序列表 2</li>
-<li>有序列表 3</li>
-</ol>
-<h3 id="2-5-引用"><a href="#2-5-引用" class="headerlink" title="2.5 引用"></a>2.5 引用</h3><p>引用的格式是在符号<code>&gt;</code>后面书写文字。</p>
-<pre><code>&gt; 读一本好书，就是在和高尚的人谈话。 ——歌德
+<h3 id="3-3-SendMsg函数"><a href="#3-3-SendMsg函数" class="headerlink" title="3.3 SendMsg函数"></a>3.3 SendMsg函数</h3><p>该函数发送消息到对方，代码如下：</p>
+<pre><code>bool CComm::SendMsg(char *Msg,int Len,char *host,short port)
+&#123;
+    signed int Sent;
+    hostent *hostdata;
+    if ( atoi (host) )//是否IP地址为标准形式
+    &#123;
+        u_long ip = inet_addr( host );
+        hostdata = gethostbyaddr((char *)&amp;ip,sizeof(ip),PF_INET);
+    &#125;
+    else
+    &#123;
+        hostdata = gethostbyname(host);
+    &#125;
+    if( !hostdata )
+    &#123;
+    MessageBox (hWnd,&quot;获得的计算机名错误&quot;,&quot;warning&quot;,0);
+    return false;
+    &#125;
+    //设定目标地址dest
+    sockaddr_in dest; //发送目标地址
+    dest.sin_family = PF_INET;
+    dest.sin__addr = *(in_addr *)(hostdata-&gt;h_addr_list[0]);
+    dest.sin_port - htons( port );
+    //调用函数sendto数据发送
+    Sent = sendto(ListenSocket,Msg,Len,0,(sockaddr *)&amp;dest,sizeof(sockaddr_in));
+    if ( Sent != Len )
+    &#123;
+        char CErr[10];
+        int nSockErr;
+        nSockErr=WSAGetLastError();
+        itoa(nSockErr,CErr,10);
+        MessageBox (hWnd,CErr,&quot;退出&quot;,0);
+        return false;
+    &#125;
+    return true;
+&#125;
+</code></pre>
+<h2 id="4、象棋业务逻辑重要函数"><a href="#4、象棋业务逻辑重要函数" class="headerlink" title="4、象棋业务逻辑重要函数"></a>4、象棋业务逻辑重要函数</h2><h3 id="4-1-Graphics函数"><a href="#4-1-Graphics函数" class="headerlink" title="4.1 Graphics函数"></a>4.1 Graphics函数</h3><p>该函数用来绘制一个棋子，代码如下：</p>
+<pre><code>void Graphics(int x,int y,int RorB,LPCTSTR ChessmanName)
+&#123;
+    HFONT hf_Red;//定义字体
+    hf_Red=CreateFont (32,0,0,0,FW_HEAVY,0,0,0,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_DONTCARE, &quot;红体&quot;);
+    HPEN hPen; //定义画笔
+    hPen=CreatePen(PS_SOLID,2,RGB(30,30,30));//创建画笔
+    SelectObject (hdc, hPen) ; //把新的画笔选择进 hdc
+    SetBkColor(hdc,RGB (255,255,255)); //设置背景色为全白
+    if(RorB==l)
+    &#123;
+        SetTextColor(hdc,RGB(255,0,0));
+    &#125;
+    else
+    &#123;
+        SetTextColor(hdc,RGB(0,0,0));
+    &#125;
+    //调用椭圆画图函数
+    Ellipse(hdc,xArray[x][y]-23,yArray[x][y]-23,xArray[x][y]+23,yArray[x][y]+23);
+    SelectObject(hdc,hf_Red);
+    //画出棋子上的名字，比如帅、车等
+    TextOut(hdc,xArray[x][y]-14,yArray[x][y]-16,ChessmanName,strlen(ChessmanName));
+&#125;
+</code></pre>
+<h3 id="4-2-Draw函数"><a href="#4-2-Draw函数" class="headerlink" title="4.2 Draw函数"></a>4.2 Draw函数</h3><p>该函数在某个位置绘制某个棋子。代码如下：</p>
+<pre><code>void Draw(int x,int y,int info)
+&#123;
+    switch(info)
+    &#123;
+        //绘制红方棋子
+        case 7:
+        Graphics (x, y, 1,&quot;兵&quot;);
+        break;
+        case 6:
+        Graphics (x, y, 1,&quot;炮&quot;);
+        break;
+        case 5:
+        Graphics (x, y, 1,&quot;帅&quot;);
+        break;
+        case 4:
+        Graphics (x, y, 1,&quot;仕&quot;);
+        break;
+        case 3:
+        Graphics (x, y, 1,&quot;相&quot;);
+        break;
+        case 2:
+        Graphics (x, y, 1,&quot;马&quot;);
+        break;
+        case 1:
+        Graphics (x, y, 1,&quot;车&quot;);
+        break;
+        //绘制黑方棋子
+        case 17:
+        Graphics (x, y, 0,&quot;卒&quot;);
+        break;
+        case 16:
+        Graphics (x, y, 0,&quot;炮&quot;);
+        break; 
+        case 15:
+        Graphics (x, y, 0,&quot;将&quot;);
+        break;
+        case 14:
+        Graphics (x, y, 0,&quot;士&quot;);
+        break;
+        case 13:
+        Graphics (x, y, 0,&quot;象&quot;);
+        break;
+        case 12:
+        Graphics (x, y, 0,&quot;马&quot;);
+        break;
+        case 11:
+        Graphics (x, y, 0,&quot;车&quot;);
+        break;
+        default:
+        break;
+    &#125;
+&#125;
+</code></pre>
+<h3 id="4-3-InitChessBoard函数"><a href="#4-3-InitChessBoard函数" class="headerlink" title="4.3 InitChessBoard函数"></a>4.3 InitChessBoard函数</h3><p>该函数的作用是初始化函数。代码如下</p>
+<pre><code>void InitChessBoard()
+&#123;
+    //初始化win: win=true表示巳有一方胜利
+    win=false;
+    //初始化GetChessman: 0表示未获得棋子1表示获得
+    GetChessman=O;
+    //初始化RedOrBlack: 0表示红方出 1表示黑方
+    RedOrBlack=0;
+    //赋值 xArray [][]和yArray[][]
+    int i=0,j=0;
+    for(i=0;i&lt;9;i++)
+    &#123;
+        for(j=0;j&lt;10;j++)
+        &#123;
+            xArray[i][j]=cX+50*i;
+            yArray[i][j]=cY+50*j;
+        &#125;
+    &#125;
+    for(i=0;i&lt;9;i++)
+    &#123;
+        xArray[i][9]=cX+50*i;
+        yArray[i][9]=cY+450;
+    &#125;
+    //对InfoArray[9][10]赋值：全部清零
+    for(i=0;i&lt;9;i++)
+    &#123;
+        for(j=0;j&lt;10;j++)
+        &#123;
+            InfoArray[i][j]=0;
+        &#125;
+    &#125;
+    //賦值InfoArray[9][10] :: 0:空位1:红方[车]2:红方[马]3:红方[相]4:红方[士]5:红方[帅]6:红方[炮]7:红方[兵]
+    yArray[1][0]=cY;
+    InfoArray[0][0]=InfoArray[8][0]=11;//黑方车位
+    InfoArray[1][0]=InfoArray[7][0]=12;
+    InfoArray[2][0]=InfoArray[6][0]=13;
+    InfoArray[3][0]=InfoArray[5][0]=14;
+    InfoArray[4][0]=15;//将位
+    InfoArray[1][2]=InfoArray[7][2]=16; //炮位
+    InfoArray[0][3]=InfoArray[2][3]=InfoArray[4][3]=InfoArray[6][3]=InfoArray[ 8] [3]=17;//卒位
+    InfoArray[0][9] =InfoArray[8][9]=1; //红方车位
+    InfoArray[l][9]=InfoArray[7][9]=2;
+    InfoArray[2][9]=InfoArray[6][9]=3;
+    InfoArray[3][9]=InfoArray[5][9]=4;
+    InfoArray[4][9]=5;//帅位
+    InfoArray[1][7]=InfoArray[7][7]=6;//炮位
+    InfoArray[0][6]=InfoArray[2][6]=InfoArray[4][6]=InfoArray[6][6]=InfoArray[8][6]=7;//兵位
+&#125;
+</code></pre>
+<h3 id="4-4-ChessRule函数"><a href="#4-4-ChessRule函数" class="headerlink" title="4.4 ChessRule函数"></a>4.4 ChessRule函数</h3><p>该函数真正实现象棋走棋这个业务逻辑的函数，比较重要。代码如下:</p>
+<pre><code>bool ChessRule(int x1,int y1,int x2,int y2,int info1,int info2)//(x1,y1): 原棋坐标，(x2,y2):欲行至坐标，info1,2 :两坐标点信息
+&#123;
+    
+    hf_Win=CreateFont(24,0,0,0,FW_HEAVY,0,0,0,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH|FF_DONTCARE,&quot;红体&quot;);
+    //判断帅将是否会面，另请参见case 5 , case 15处
+    int SamePosition=0;
+    for(int i=y1-1;i&gt;=0;i--)
+    &#123;
+        if(InfoArray[x1][i]==15)
+        &#123;
+            SamePosition=1;
+            break;
+        &#125;
+        else
+        &#123;
+            if(InfoArray[x1][i]&gt;0)
+                break;
+        &#125;
+    &#125;
+    
+    for(int j=y1+1;j&lt;=9;j++)
+    &#123;
+        if(InfoArray[x1][j]==5)
+        &#123;
+            
+            SamePosition=SamePosition+1;
+            break;
+        &#125;
+        else
+        &#123;
+            
+            if(InfoArray[x1][j]&gt;0)
+            &#123;
+                break;
+            &#125;
+        &#125;
+    &#125;
+    if(SamePosition==2&amp;&amp;x1!=x2)
+    &#123;
+        SetTextColor(hdc,RGB(255,0,0));
+        SelectObject(hdc,hf_Win);
+        TextOut(hdc,10,400,&quot;将帅不会面!&quot;,strlen(&quot;将帅不会面!&quot;));
+        return false;
+    &#125;
+    //针对炮隔将帅打子的特例:
+    if(SamePosition==2&amp;&amp;x1==x2&amp;&amp;(info1==6||info1==16))
+    &#123;
+        //针对红方炮
+        if(y2==0||y2==1)
+        &#123;
+            if(InfoArray[x1][y2+1]==15||InfoArray[x1][y2+2]==15)
+            &#123;
+                SetTextColor(hdc,RGB(255,0,0));
+                SelectObject(hdc,hf_Win);
+                TextOut(hdc,10,400,&quot;将帅不会面!&quot;,strlen(&quot;将帅不会面!&quot;));
+                return false;
+            &#125;
+        &#125;
+        //针对黑方炮
+        if(y2==8||y2==9)
+        &#123;
+            if(InfoArray[x1][y2-1]==5||InfoArray[x1][y2-2]==5)
+            &#123;
+                SetTextColor(hdc,RGB(255,0,0));
+                SelectObject(hdc,hf_Win);
+                TextOut(hdc,10,400,&quot;将帅不会面!&quot;,strlen(&quot;将帅不会面!&quot;));
+                return false;
+            &#125;
+        &#125;
+    &#125;
+    
+    
+    //判断所吃棋子是否是己方棋子
+    if((info1&lt;8&amp;&amp;info2&lt;8&amp;&amp;info1&gt;0&amp;&amp;info2&gt;0)||(info1&gt;8&amp;&amp;info2&gt;8))
+    &#123;
+        return false;
+    &#125;
+    //将原棋位信息大于10的转换为0~7,但是3, 13相/象，7、17兵/卒，4、14士，5、15将/帅不转换，因为要限制坐标
+    if(info1&gt;10&amp;&amp;info1!=13&amp;&amp;info1!=14&amp;&amp;info1!=15&amp;&amp;info1!=17)&#123;info1-=10;&#125;
+    switch(info1)
+    &#123;
+        // case 1 对应“车”的规则
+    case 1:
+        if(x1==x2||y1==y2)
+        &#123;
+            //判断两坐标之间是否有其他棋子
+            if(x1==x2)
+            &#123;
+                if(y1&gt;y2)
+                &#123;                    
+                    for(y2++;y2&lt;y1;y2++)
+                    &#123;                    
+                        if(InfoArray[x1][y2]&gt;0)
+                        &#123;
+                            return false;
+                        &#125;
+                    &#125;                    
+                &#125;
+                else
+                &#123;
+                    for(y1++;y1&lt;y2;y1++)
+                    &#123;                    
+                        if(InfoArray[x1][y1]&gt;0)
+                        &#123;
+                            return false;
+                        &#125;
+                    &#125;
+                &#125;
+            &#125;
+            else
+            &#123;
+                if(x1&gt;x2)
+                &#123;                    
+                    for(x2++;x2&lt;x1;x2++)
+                    &#123;                        
+                        if(InfoArray[x2][y1]&gt;0)
+                        &#123;
+                            return false;
+                        &#125;
+                    &#125;                    
+                &#125;
+                else
+                &#123;
+                    for(x1++;x1&lt;x2;x1++)
+                    &#123;
+                        
+                        if(InfoArray[x1][y1]&gt;0)
+                        &#123;
+                            return false;
+                        &#125;
+                    &#125;
+                &#125;
+            &#125;       
+            return true;
+        &#125;
+        
+        
+        // case 2判断“马”的规则
+    case 2:
+        if((abs(x2-x1)==1&amp;&amp;abs(y2-y1)==2)||(abs(x2-x1)==2&amp;&amp;abs(y2-y1)==1))
+        &#123;
+            if(abs(x2-x1)==1)
+            &#123;
+                if(InfoArray[x1][(y1+y2)/2]&gt;0)
+                &#123;
+                    return false;
+                &#125;
+                return true;
+            &#125;
+            else
+            &#123;
+                if(InfoArray[(x1+x2)/2][y1]&gt;0)
+                &#123;
+                    return false;
+                &#125;
+                return true;
+            &#125;
+        &#125;
+        else
+        &#123;
+            return false;
+        &#125;
+        
+        // case 3判断红“相”的规则
+    case 3:
+        //y2小于5,即坐标过界，return false;
+        if(y2&lt;5)
+        &#123;
+            return false;
+        &#125;
+        if(abs(x2-x1)==2&amp;&amp;abs(y2-y1)==2&amp;&amp;InfoArray[(x2+x1)/2][(y2+y1)/2]==0)
+        &#123;
+            return true;
+        &#125;
+        
+        
+        // case 13判断黑“象”的规则
+    case 13:
+        //y2大于4,即坐标过界,return false;
+        if(y2&gt;4)
+        &#123;
+            return false;
+        &#125;
+        if(abs(x2-x1)==2&amp;&amp;abs(y2-y1)==2&amp;&amp;InfoArray[(x2+x1)/2][(y2+y1)/2]==0)
+        &#123;
+            return true;
+        &#125;
+        
+         // case 4判断红“士”的规则
+    case 4:
+        if(abs(x2-x1)==1&amp;&amp;abs(y2-y1)==1&amp;&amp;x2&gt;2&amp;&amp;x2&lt;6&amp;&amp;y2&gt;6)
+        &#123;
+            return true;
+        &#125;
+        return false;
+        // case 14判断黑“士”的规则
+    case 14:
+        if(abs(x2-x1)==1&amp;&amp;abs(y2-y1)==1&amp;&amp;x2&gt;2&amp;&amp;x2&lt;6&amp;&amp;y2&lt;3)
+        &#123;
+            return true;
+        &#125;
+        return false;
+        // case 5判断红“帅”的规则
+    case 5:
+        if((x2==x1||y2==y1)&amp;&amp;(abs(y2-y1)==1||abs(x2-x1)==1)&amp;&amp;x2&gt;2&amp;&amp;x2&lt;6&amp;&amp;y2&gt;6)
+        &#123;
+            //判断帅将是否会面，另请参见函数开始处
+            if(InfoArray[x2][0]==15||InfoArray[x2][1]==15||InfoArray[x2][2]==15)
+            &#123;            
+                for(int Prej=y2-1;Prej&gt;=0;Prej--)
+                &#123;
+                    if(InfoArray[x2][Prej]==15)
+                    &#123;
+                        SetTextColor(hdc,RGB(255,0,0));
+                        SelectObject(hdc,hf_Win);
+                              TextOut(hdc,10,400,&quot;将帅不会面!&quot;,strlen(&quot;将帅不会面!&quot;));                 
+                              return false;
+                    &#125;
+                    else
+                    &#123;
+                        if(InfoArray[x2][Prej]&gt;0)
+                        &#123;
+                            return true;
+                        &#125;
+                    &#125;
+                &#125;
+                
+            &#125;
+            return true;
+        &#125;
+        return false;
+        
+        //case 15判断黑&quot;将&quot;的规则
+    case 15:
+        if((x2==x1||y2==y1)&amp;&amp;(abs(y2-y1)==1||abs(x2-x1)==1)&amp;&amp;x2&gt;2&amp;&amp;x2&lt;6&amp;&amp;y2&lt;3)
+        &#123;
+            //判断帅将是否会面，另请参见函数开始处
+            if(InfoArray[x2][9]==5||InfoArray[x2][8]==5||InfoArray[x2][7]==5)
+            &#123;                
+                for(int Prej=y2+1;Prej&lt;=9;Prej++)
+                &#123;
+                    if(InfoArray[x2][Prej]==5)
+                    &#123;
+                        SetTextColor(hdc,RGB(255,0,0));
+                        SelectObject(hdc,hf_Win);
+                        TextOut(hdc,10,400,&quot;将帅不会面!&quot;,strlen(&quot;将帅不会面!&quot;));
+                        return false;
+                    &#125;
+                    else
+                    &#123;
+                        if(InfoArray[x2][Prej]&gt;0)
+                        &#123;
+                            return true;
+                        &#125;
+                    &#125;
+                &#125;
+                
+            &#125;
+            return true;
+        &#125;
+        return false;
+        
+        // case 6判断“炮”的规则：：可参考“车”
+    case 6:
+        if(x1==x2||y1==y2)
+        &#123;
+            //记录两坐标间棋子个数
+            int NOCount=0;
+            if(x1==x2)
+            &#123;
+                if(y1&gt;y2)
+                &#123;
+                    for(y2++;y2&lt;y1;y2++)
+                    &#123;    
+                        if(InfoArray[x1][y2]&gt;0)
+                        &#123;
+                            NOCount++;
+                            if(NOCount&gt;1)
+                                return false;
+                        &#125;
+                    &#125;
+                    //炮走空位的情况
+                    if(NOCount==0&amp;&amp;info2==0)
+                    &#123;
+                        return true;
+                    &#125;
+                    //炮隔子吃掉棋子的情况
+                    if(NOCount==1&amp;&amp;info2&gt;0)
+                    &#123;
+                        return true;
+                    &#125;                    
+                &#125;
+                else
+                &#123;
+                    for(y1++;y1&lt;y2;y1++)
+                    &#123;    
+                        if(InfoArray[x1][y1]&gt;0)
+                        &#123;
+                            NOCount++;
+                            if(NOCount&gt;1)
+                                return false;
+                        &#125;
+                    &#125;
+                    //炮走空位的情况
+                    if(NOCount==0&amp;&amp;info2==0)
+                    &#123;
+                        return true;
+                    &#125;
+                    //炮隔子吃掉棋子的情况
+                    if(NOCount==1&amp;&amp;info2&gt;0)
+                    &#123;
+                        return true;
+                    &#125;
+                &#125;
+                
+            &#125;
+            else
+            &#123;
+                if(x1&gt;x2)
+                &#123;                
+                    for(x2++;x2&lt;x1;x2++)
+                    &#123;    
+                        if(InfoArray[x2][y2]&gt;0)
+                        &#123;
+                            NOCount++;
+                            if(NOCount&gt;1)
+                                return false;
+                        &#125;
+                    &#125;
+                    //炮走空位的情况
+                    if(NOCount==0&amp;&amp;info2==0)
+                    &#123;
+                        return true;
+                    &#125;
+                    //炮隔子吃掉棋子的情况
+                    if(NOCount==1&amp;&amp;info2&gt;0)
+                    &#123;
+                        return true;
+                    &#125;                    
+                &#125;
+                else
+                &#123;
+                    for(x1++;x1&lt;x2;x1++)
+                    &#123;    
+                        if(InfoArray[x1][y2]&gt;0)
+                        &#123;
+                            NOCount++;
+                            if(NOCount&gt;1)
+                                return false;
+                        &#125;
+                    &#125;
+                    //炮走空位的情况
+                    if(NOCount==0&amp;&amp;info2==0)
+                    &#123;
+                        return true;
+                    &#125;
+                    //炮隔子吃掉棋子的情况
+                    if(NOCount==1&amp;&amp;info2&gt;0)
+                    &#123;
+                        return true;
+                    &#125;
+                &#125;
+            &#125;
+        &#125;
+        else
+        &#123;
+            return false;
+        &#125;
+        return false;
+        // case 7判断红“兵&quot;的规则
+    case 7:
+        if(y2&gt;y1)
+        &#123;
+            return false;
+        &#125;
+        //兵过界
+        if(y1&lt;5)
+        &#123;
+            if((x2==x1||y2==y1)&amp;&amp;(abs(y2-y1)==1||abs(x2-x1)==1))
+            &#123;
+                return true;
+            &#125;
+        &#125;
+        else
+        &#123;
+            if(x2==x1&amp;&amp;(abs(y2-y1)==1||abs(x2-x1)==1))
+            &#123;
+                return true;
+            &#125;
+            else
+            &#123;
+                return false;
+            &#125;
+        &#125;
+        // case 17判断黑“卒”的规则
+    case 17:
+        if(y2&lt;y1)
+        &#123;
+            return false;
+        &#125;
+        //兵过界
+        if(y1&gt;4)
+        &#123;
+            if((x2==x1||y2==y1)&amp;&amp;(abs(y2-y1)==1||abs(x2-x1)==1))
+            &#123;
+                return true;
+            &#125;
+        &#125;
+        else
+        &#123;
+            if(x2==x1&amp;&amp;(abs(y2-y1)==1||abs(x2-x1)==1))
+            &#123;
+                return true;
+            &#125;
+            else
+            &#123;
+                return false;
+            &#125;
+        &#125;
+    default:     return false;                
+    &#125;
+    return false;
+&#125;
+</code></pre>
+<p>版权声明:本文参考visual c++ 2017 网络编程实战，仅供自己学习使用，如有侵权请告知。</p>
 
-&gt; 雇用制度对工人不利，但工人根本无力摆脱这个制度。 ——阮一峰
-</code></pre>
-<blockquote>
-<p>读一本好书，就是在和高尚的人谈话。 ——歌德</p>
-</blockquote>
-<blockquote>
-<p>雇用制度对工人不利，但工人根本无力摆脱这个制度。 ——阮一峰</p>
-</blockquote>
-<h3 id="2-7-链接"><a href="#2-7-链接" class="headerlink" title="2.7 链接"></a>2.7 链接</h3><p>微信公众号仅支持公众号文章链接，即域名为<code>https://mp.weixin.qq.com/</code>的合法链接。使用方法如下所示：</p>
-<pre><code>对于该论述，欢迎读者查阅之前发过的文章，[你是《未来世界的幸存者》么？](https://mp.weixin.qq.com/s/s5IhxV2ooX3JN_X416nidA)
-&lt;a id=&quot;jump_8&quot;&gt;&lt;/a&gt;
-</code></pre>
-<p>对于该论述，欢迎读者查阅之前发过的文章，<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/s5IhxV2ooX3JN_X416nidA">你是《未来世界的幸存者》么？</a><br><a id="jump_8"></a></p>
-<h3 id="2-8-图片"><a href="#2-8-图片" class="headerlink" title="2.8 图片"></a>2.8 图片</h3><p>插入图片，格式如下：</p>
-<pre><code>![这里写图片描述](https://www.nginx.cn/wp-content/uploads/2020/03/qrcode_for_gh_82cf87d482f0_258.jpg)
-</code></pre>
-<p><img src="https://www.nginx.cn/wp-content/uploads/2020/03/qrcode_for_gh_82cf87d482f0_258.jpg" alt="这里写图片描述"></p>
-<p>支持 jpg、png、gif、svg 等图片格式，<strong>其中 svg 文件仅可在微信公众平台中使用</strong>，svg 文件示例如下：</p>
-<pre><code>![](https://markdown.com.cn/images/i-am-svg.svg)
-</code></pre>
-<p><img src="https://markdown.com.cn/images/i-am-svg.svg"></p>
-<p>支持图片<strong>拖拽和截图粘贴</strong>到编辑器中。</p>
-<p>注：支持图片 <em><strong>拖拽和截图粘贴</strong></em> 到编辑器中，仅支持 https 的图片，图片粘贴到微信时会自动上传微信服务器。</p>
-<h3 id="2-9-分割线"><a href="#2-9-分割线" class="headerlink" title="2.9 分割线"></a>2.9 分割线</h3><p>可以在一行中用三个以上的减号来建立一个分隔线，同时需要在分隔线的上面空一行。如下：</p>
-<pre><code>---
-</code></pre>
-<hr>
-<h3 id="2-10-表格"><a href="#2-10-表格" class="headerlink" title="2.10 表格"></a>2.10 表格</h3><p>可以使用冒号来定义表格的对齐方式，如下：</p>
-<pre><code>| 姓名   | 年龄 |     工作 |
-| :----- | :--: | -------: |
-| 小可爱 |  18  | 吃可爱多 |
-| 小小勇敢 |  20  | 爬棵勇敢树 |
-| 小小小机智 |  22  | 看一本机智书 |
-</code></pre>
-<table>
-<thead>
-<tr>
-<th align="left">姓名</th>
-<th align="center">年龄</th>
-<th align="right">工作</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">小可爱</td>
-<td align="center">18</td>
-<td align="right">吃可爱多</td>
-</tr>
-<tr>
-<td align="left">小小勇敢</td>
-<td align="center">20</td>
-<td align="right">爬棵勇敢树</td>
-</tr>
-<tr>
-<td align="left">小小小机智</td>
-<td align="center">22</td>
-<td align="right">看一本机智书</td>
-</tr>
-</tbody></table>
-<h2 id="3-特殊语法"><a href="#3-特殊语法" class="headerlink" title="3. 特殊语法"></a>3. 特殊语法</h2><h3 id="3-1-脚注"><a href="#3-1-脚注" class="headerlink" title="3.1 脚注"></a>3.1 脚注</h3><blockquote>
-<p>支持平台：微信公众号、知乎。</p>
-</blockquote>
-<p>脚注与链接的区别如下所示：</p>
-<pre class=" language-markdown"><code class="language-markdown">链接：<span class="token url">[文字](链接)</span>
-脚注：<span class="token url">[文字](脚注解释 <span class="token string">"脚注名字"</span>)</span>
-</code></pre>
-<p>有人认为在<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Front-end_web_development" title="Front-end web development">大前端时代</a>的背景下，移动端开发（Android、IOS）将逐步退出历史舞台。</p>
-<p><a href="%E6%98%AF%E6%8C%87%E6%8E%8C%E6%8F%A1%E5%A4%9A%E7%A7%8D%E6%8A%80%E8%83%BD%EF%BC%8C%E5%B9%B6%E8%83%BD%E5%88%A9%E7%94%A8%E5%A4%9A%E7%A7%8D%E6%8A%80%E8%83%BD%E7%8B%AC%E7%AB%8B%E5%AE%8C%E6%88%90%E4%BA%A7%E5%93%81%E7%9A%84%E4%BA%BA%E3%80%82" title="什么是全栈工程师">全栈工程师</a>在业务开发流程中起到了至关重要的作用。</p>
-<p>脚注内容请拉到最下面观看。</p>
-<h3 id="3-2-代码块"><a href="#3-2-代码块" class="headerlink" title="3.2 代码块"></a>3.2 代码块</h3><blockquote>
-<p>支持平台：微信代码主题仅支持微信公众号！其他主题无限制。</p>
-</blockquote>
-<p>如果在一个行内需要引用代码，只要用反引号引起来就好，如下：</p>
-<p>Use the <code>printf()</code> function.</p>
-<p>在需要高亮的代码块的前一行及后一行使用三个反引号，同时<strong>第一行反引号后面表示代码块所使用的语言</strong>，如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">// FileName: HelloWorld.java</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HelloWorld</span> <span class="token operator">&amp;</span>#<span class="token number">123</span><span class="token punctuation">;</span>
-  <span class="token comment" spellcheck="true">// Java 入口程序，程序从此入口</span>
-  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token operator">&amp;</span>#<span class="token number">123</span><span class="token punctuation">;</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Hello,World!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 向控制台打印一条语句</span>
-  <span class="token operator">&amp;</span>#<span class="token number">125</span><span class="token punctuation">;</span>
-<span class="token operator">&amp;</span>#<span class="token number">125</span><span class="token punctuation">;</span>
-</code></pre>
-<p>支持以下语言种类：</p>
-<pre><code>bash
-clojure，cpp，cs，css
-dart，dockerfile, diff
-erlang
-go，gradle，groovy
-haskell
-java，javascript，json，julia
-kotlin
-lisp，lua
-makefile，markdown，matlab
-objectivec
-perl，php，python
-r，ruby，rust
-scala，shell，sql，swift
-tex，typescript
-verilog，vhdl
-xml
-yaml
-</code></pre>
-<p>如果想要更换代码高亮样式，可在上方<strong>代码主题</strong>中挑选。</p>
-<p>其中<strong>微信代码主题与微信官方一致</strong>，有以下注意事项：</p>
-<ul>
-<li>带行号且不换行，代码大小与官方一致</li>
-<li>需要在代码块处标志语言，否则无法高亮</li>
-<li>粘贴到公众号后，用鼠标点代码块内外一次，完成高亮</li>
-</ul>
-<p>diff 不能同时和其他语言的高亮同时显示，且需要调整代码主题为微信代码主题以外的代码主题才能看到 diff 效果，使用效果如下:</p>
-<pre class=" language-diff"><code class="language-diff"><span class="token inserted">+ 新增项</span>
-<span class="token deleted">- 删除项</span>
-</code></pre>
-<p><strong>其他主题不带行号，可自定义是否换行，代码大小与当前编辑器一致</strong></p>
-<h3 id="3-3-数学公式"><a href="#3-3-数学公式" class="headerlink" title="3.3 数学公式"></a>3.3 数学公式</h3><blockquote>
-<p>支持平台：微信公众号、知乎。</p>
-</blockquote>
-<p>行内公式使用方法，比如这个化学公式：</p>
-<pre><code>$\ce&#123;Hg^2+ -&gt;[I-] HgI2 -&gt;[I-] [Hg^&#123;II&#125;I4]^2-&#125;$
-</code></pre>
-<p>$\ce{Hg^2+ -&gt;[I-] HgI2 -&gt;[I-] [Hg^{II}I4]^2-}$</p>
-<p>块公式使用方法如下：</p>
-<pre><code>$$H(D_2) = -\left(\frac&#123;2&#125;&#123;4&#125;\log_2 \frac&#123;2&#125;&#123;4&#125; + \frac&#123;2&#125;&#123;4&#125;\log_2 \frac&#123;2&#125;&#123;4&#125;\right) = 1$$
-</code></pre>
-<p>$$H(D_2) &#x3D; -\left(\frac{2}{4}\log_2 \frac{2}{4} + \frac{2}{4}\log_2 \frac{2}{4}\right) &#x3D; 1$$</p>
-<p>矩阵：</p>
-<pre><code>$$
-  \begin&#123;pmatrix&#125;
-  1 &amp; a_1 &amp; a_1^2 &amp; \cdots &amp; a_1^n \\
-  1 &amp; a_2 &amp; a_2^2 &amp; \cdots &amp; a_2^n \\
-  \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-  1 &amp; a_m &amp; a_m^2 &amp; \cdots &amp; a_m^n \\
-  \end&#123;pmatrix&#125;
-$$
-</code></pre>
-<p>$$<br>  \begin{pmatrix}<br>  1 &amp; a_1 &amp; a_1^2 &amp; \cdots &amp; a_1^n \<br>  1 &amp; a_2 &amp; a_2^2 &amp; \cdots &amp; a_2^n \<br>  \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \<br>  1 &amp; a_m &amp; a_m^2 &amp; \cdots &amp; a_m^n \<br>  \end{pmatrix}<br>$$</p>
-<p>公式由于微信不支持，目前的解决方案是转成 svg 放到微信中，无需调整，矢量不失真。</p>
-<p>目前测试如果公式量过大，在 Chrome 下会存在粘贴后无响应，但是在 Firefox 中始终能够成功。</p>
-<h3 id="3-4-TOC"><a href="#3-4-TOC" class="headerlink" title="3.4 TOC"></a>3.4 TOC</h3><blockquote>
-<p>支持平台：微信公众号、知乎。</p>
-</blockquote>
-<p>TOC 全称为 Table of Content，列出全部标题。</p>
-<p>[TOC]</p>
-<p>由于微信只支持到二级列表，本工具仅支持二级标题和三级标题的显示。</p>
-<h3 id="3-5-注音符号"><a href="#3-5-注音符号" class="headerlink" title="3.5 注音符号"></a>3.5 注音符号</h3><blockquote>
-<p>支持平台：微信公众号。</p>
-</blockquote>
-<p>支持注音符号，用法如下：</p>
-<p>Markdown Nice 这么好用，简直是{喜大普奔|hē hē hē hē}呀！</p>
-<h3 id="3-6-横屏滑动幻灯片"><a href="#3-6-横屏滑动幻灯片" class="headerlink" title="3.6 横屏滑动幻灯片"></a>3.6 横屏滑动幻灯片</h3><blockquote>
-<p>支持平台：微信公众号。</p>
-</blockquote>
-<p>通过<code>&lt;![](url),![](url)&gt;</code>这种语法设置横屏滑动滑动片，具体用法如下：</p>
-<pre><code>&lt;![蓝1](https://markdown.com.cn/images/blue.jpg),![绿2](https://markdown.com.cn/images/green.jpg),![红3](https://markdown.com.cn/images/red.jpg)&gt;
-</code></pre>
-<p>&lt;<img src="https://markdown.com.cn/images/blue.jpg" alt="蓝1">,<img src="https://markdown.com.cn/images/green.jpg" alt="绿2">,<img src="https://markdown.com.cn/images/red.jpg" alt="红3">&gt;</p>
-<h2 id="4-其他语法"><a href="#4-其他语法" class="headerlink" title="4 其他语法"></a>4 其他语法</h2><h3 id="4-1-HTML"><a href="#4-1-HTML" class="headerlink" title="4.1 HTML"></a>4.1 HTML</h3><p>支持原生 HTML 语法，请写内联样式，如下：</p>
-<pre><code>&lt;span style=&quot;display:block;text-align:right;color:orangered;&quot;&gt;橙色居右&lt;/span&gt;
-&lt;span style=&quot;display:block;text-align:center;color:orangered;&quot;&gt;橙色居中&lt;/span&gt;
-</code></pre>
-<p><span style="display:block;text-align:right;color:orangered;">橙色居右</span><br><span style="display:block;text-align:center;color:orangered;">橙色居中</span></p>
-<h3 id="4-2-UML"><a href="#4-2-UML" class="headerlink" title="4.2 UML"></a>4.2 UML</h3><p>不支持，推荐使用开源工具<code>https://draw.io/</code>制作后再导入图片</p>
-<h2 id="本文由markdown官方教程稍作修改而来，仅供学习使用，如有侵权请告知删除。"><a href="#本文由markdown官方教程稍作修改而来，仅供学习使用，如有侵权请告知删除。" class="headerlink" title="本文由markdown官方教程稍作修改而来，仅供学习使用，如有侵权请告知删除。"></a>本文由markdown官方教程稍作修改而来，仅供学习使用，如有侵权请告知删除。</h2>
         </div>
         <!-- .entry-content -->
         <div class="single-reward">
@@ -585,28 +1160,11 @@ $$
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
-          
-            <div class="post-nepre half previous">
-          
-            <a href="/2022/04/14/%E5%9F%BA%E4%BA%8EVC++%E7%9A%84%E4%B8%AD%E5%9B%BD%E8%B1%A1%E6%A3%8B%E7%BD%91%E4%B8%8A%E5%AF%B9%E5%BC%88%E7%B3%BB%E7%BB%9F(1)/" rel="prev">
-              <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/qingyiyu/cdn@1.10/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/qingyiyu/cdn@1.06/img/banner/client.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/qingyiyu/cdn@1.06/img/banner/client.jpg">
-              </div>
-              <span class="label">
-              Previous Post</span>
-              <div class="info">
-                <h3>
-                基于VC++的中国象棋网上对弈系统（1）</h3>
-                <hr>
-              </div>
-            </a>
-          </div>
-        
         
           
-            <div class="post-nepre half next">
+            <div class="post-nepre full next">
           
-            <a href="/2022/04/12/%E8%B5%84%E6%BA%90/" rel="next">
+            <a href="/2022/04/12/Markdown%E6%95%99%E7%A8%8B/" rel="next">
               <div class="background">
                 <img class="lazyload" src="https://cdn.jsdelivr.net/gh/qingyiyu/cdn@1.10/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://cdn.jsdelivr.net/gh/qingyiyu/cdn@1.06/img/banner/client.jpg" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://cdn.jsdelivr.net/gh/qingyiyu/cdn@1.06/img/banner/client.jpg">
               </div>
@@ -614,7 +1172,7 @@ $$
               Next Post</span>
               <div class="info">
                 <h3>
-                这是一篇资源文</h3>
+                Markdown教程</h3>
                 <hr>
               </div>
             </a>
